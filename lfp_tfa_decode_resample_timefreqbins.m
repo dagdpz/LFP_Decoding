@@ -1,7 +1,31 @@
 function [ timefreqbinned_tfs, bin_timestamps, bin_freq ] = ...
     lfp_tfa_decode_resample_timefreqbins( lfp_tfs, orig_timepoints, orig_freqpoints, nsamples_timebin, nsamples_freqbin)
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%lfp_tfa_decode_resample_timebins - function to time bin the raw LFP
+%   Each time bin contains the average raw LFP of all timepoints within
+%   that bin for each site. Each bin is assigned a timestamp equal to the timestamp of
+%   middle timepoint of that bin
+%
+% USAGE:
+%   [ timefreqbinned_tfs, bin_timestamps, bin_freq ] = ...
+%    lfp_tfa_decode_resample_timefreqbins( lfp_tfs, orig_timepoints, ...
+%    orig_freqpoints, nsamples_timebin, nsamples_freqbin) 
+%
+% INPUTS: 
+%   lfp_tfs             - LFP TFS data (nsites x nfreqs x ntimepoints)
+%   orig_timepoints     - timestamps of LFP TFS data (1 x ntimepoints)
+%   orig_freqpoints     - frequencies of LFP TFS data (1 x nfreqs)
+%   nsamples_timebin    - number of LFP TFS samples to be included in a
+%   bin
+%   nsamples_freqbin    - number of LFP TFS frequencies to be included in a
+%   bin
+% OUTPUTS:
+%   timefreqbinned_tfs      - Resampled LFP TFS data (nsites x ntbins x
+%   nfbins), 
+%   ntbins = round(numel(orig_timepoints) / nsamples_timebin) and
+%   nfbins = round(numel(orig_freqpoints) / nsamples_freqbin) 
+%   bin_timestamps          - Timestamps of the bins (1 x ntbins)
+%   bin_freq                - Timestamps of the bins (1 x nfbins)
+
 
 % find number of bins possible
 ntimebins = floor(length(orig_timepoints) / nsamples_timebin);

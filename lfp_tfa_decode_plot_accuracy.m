@@ -1,6 +1,15 @@
 function lfp_tfa_decode_plot_accuracy( lfp_decode_accuracy, figtitle, results_folder )
-%UNTITLED4 Summary of this function goes here
+%lfp_tfa_decode_plot_accuracy Plot the decoding accuracy
 %   Detailed explanation goes here
+%
+% USAGE:
+%   lfp_tfa_decode_plot_accuracy( lfp_decode_accuracy, figtitle, results_folder )
+%
+% INPUTS: 
+%   lfp_decode_accuracy - struct which stores the decoding accuracy
+%   figtitle            - title of the figure being plotted
+%   results_folder      - folder to which the resulting plot should be
+%   saved
 
 h = figure('name', figtitle);
 set(h, 'position', [100, 100,900, 675]);

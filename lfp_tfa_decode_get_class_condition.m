@@ -1,6 +1,24 @@
 function class_condition_idx = lfp_tfa_decode_get_class_condition(conditions,class)
-%UNTITLED4 Summary of this function goes here
+%lfp_tfa_decode_get_class_condition - Function to match trial conditions to
+%the classes to be decoded
 %   Detailed explanation goes here
+%
+% USAGE:
+%	class_condition_idx = lfp_tfa_decode_get_class_condition(conditions, class)
+%
+% INPUTS:
+%       conditions      - the different conditions of the recorded trials.
+%       Condition is a combination of perturbation, choice, type-effector?,
+%       reach hand, and reach space
+%       class           - conditions of a class to be decoded
+%
+% OUTPUTS:
+%		class_condition_idx        - the index of the conditions which
+%		belong to the given class
+%
+%
+% See also lfp_tfa_decoe_predict_classes
+%
 
 class_condition_idx = true(1, length(conditions));
 % get conditions to be checked

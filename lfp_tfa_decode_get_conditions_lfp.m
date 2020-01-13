@@ -1,43 +1,45 @@
-function lfp_decode = lfp_tfa_decode_get_conditions_lfp( lfp_tfa_cfg )
+function lfp_decode = lfp_tfa_decode_get_conditions_lfp( lfp_decode_cfg )
 %lfp_tfa_decode_get_conditions_lfp - Function to get raw LFP and LFP TFS
 %for all the sessions for each condition specified in settings
 %   lfp_decode = lfp_tfa_decode_get_conditions_lfp( lfp_tfa_cfg )
 %   INPUTS:
-%       lfp_tfa_cfg - struct containing the settings, see
+%       lfp_decode_cfg   - struct containing the settings, see
 %       settings/LFP_Decoding_Linus_8sessions/lfp_decoding_settings_Instr_control_IH_ISvsCS.m
 %       for example
 %       Required fields: 
-%       analyse_epochs - windows to be analysed
-%       session_info - info about sessions to be analysed
+%       analyse_epochs  - windows to be analysed
+%       session_info    - info about sessions to be analysed
 %   OUTPUTS: 
-%       lfp_decode - struct containing session-wise LFP raw and TFS for all
+%       lfp_decode      - struct containing session-wise LFP raw and TFS for all
 %       trials from the specified conditions
+%
+% REQUIRES: lfp_tfa_compare_conditions, lfp_tfa_get_condition_trials
 
 % Average Evoked LFP across sites
 lfp_decode = struct();
-for i = 1:length(lfp_tfa_cfg.session_info)
+for i = 1:length(lfp_decode_cfg.session_info)
     lfp_decode.raw_lfp.session(i).targets = {};
     lfp_decode.lfp_tfs.session(i).targets = {};
-    lfp_decode.raw_lfp.session(i).trial = cell(1, size(lfp_tfa_cfg.analyse_epochs, 1));
-    lfp_decode.raw_lfp.session(i).time = cell(1, size(lfp_tfa_cfg.analyse_epochs, 1));
+    lfp_decode.raw_lfp.session(i).trial = cell(1, size(lfp_decode_cfg.analyse_epochs, 1));
+    lfp_decode.raw_lfp.session(i).time = cell(1, size(lfp_decode_cfg.analyse_epochs, 1));
     lfp_decode.raw_lfp.session(i).condition_idx = [];
-    lfp_decode.lfp_tfs.session(i).trial = cell(1, size(lfp_tfa_cfg.analyse_epochs, 1));
-    lfp_decode.lfp_tfs.session(i).time = cell(1, size(lfp_tfa_cfg.analyse_epochs, 1));
-    lfp_decode.lfp_tfs.session(i).freq = cell(1, size(lfp_tfa_cfg.analyse_epochs, 1));
+    lfp_decode.lfp_tfs.session(i).trial = cell(1, size(lfp_decode_cfg.analyse_epochs, 1));
+    lfp_decode.lfp_tfs.session(i).time = cell(1, size(lfp_decode_cfg.analyse_epochs, 1));
+    lfp_decode.lfp_tfs.session(i).freq = cell(1, size(lfp_decode_cfg.analyse_epochs, 1));
     lfp_decode.lfp_tfs.session(i).condition_idx = [];
-    lfp_decode.lfp_pow.session(i).trial = cell(1, size(lfp_tfa_cfg.analyse_epochs, 1));
-    lfp_decode.lfp_pow.session(i).freq = cell(1, size(lfp_tfa_cfg.analyse_epochs, 1));
+    lfp_decode.lfp_pow.session(i).trial = cell(1, size(lfp_decode_cfg.analyse_epochs, 1));
+    lfp_decode.lfp_pow.session(i).freq = cell(1, size(lfp_decode_cfg.analyse_epochs, 1));
     lfp_decode.lfp_pow.session(i).condition_idx = [];
 end
 
-results_folder = fullfile(lfp_tfa_cfg.root_results_fldr, 'LFP Decoding');
+results_folder = fullfile(lfp_decode_cfg.root_results_fldr, 'LFP Decoding');
 if ~exist(results_folder, 'dir')
     mkdir(results_folder);
 end
 
 % loop through each session to get lfp data from each site
-for i = 1:length(lfp_tfa_cfg.session_info)
-    session_info = lfp_tfa_cfg.session_info(i);
+for i = 1:length(lfp_decode_cfg.session_info)
+    session_info = lfp_decode_cfg.session_info(i);
     proc_lfp_folder = session_info.proc_results_fldr;
     % read lfp data for each site
     site_lfp_files = dir(fullfile(proc_lfp_folder, 'site_lfp_*.mat'));
@@ -56,7 +58,7 @@ for i = 1:length(lfp_tfa_cfg.session_info)
     
         if nsites == 1
             % trial conditions to analyse
-            conditions = lfp_tfa_compare_conditions(lfp_tfa_cfg, ...
+            conditions = lfp_tfa_compare_conditions(lfp_decode_cfg, ...
                 {session_info.Preinj_blocks, session_info.Postinj_blocks});
             hs_labels = conditions(1).hs_labels;
             condition_trials_idx = cell(1, length(conditions) * length(hs_labels)); 
@@ -107,7 +109,7 @@ for i = 1:length(lfp_tfa_cfg.session_info)
             end
             % initialize trials data
             ntrials = length([condition_trials_idx{:}]);
-            nepochs = size(lfp_tfa_cfg.analyse_epochs, 1);
+            nepochs = size(lfp_decode_cfg.analyse_epochs, 1);
             lfp_decode.raw_lfp.session(i).trial = cell(nepochs, ntrials);
             lfp_decode.lfp_tfs.session(i).trial = cell(nepochs, ntrials);
             lfp_decode.lfp_pow.session(i).trial = cell(nepochs, ntrials);
@@ -126,11 +128,11 @@ for i = 1:length(lfp_tfa_cfg.session_info)
         
         
         % loop through epochs to analyse
-        for ep = 1:size(lfp_tfa_cfg.analyse_epochs, 1)
-            epoch_refstate   = lfp_tfa_cfg.analyse_epochs{ep, 1};
+        for ep = 1:size(lfp_decode_cfg.analyse_epochs, 1)
+            epoch_refstate   = lfp_decode_cfg.analyse_epochs{ep, 1};
             %epoch_name       = lfp_tfa_cfg.analyse_epochs{ep, 2};
-            epoch_reftstart  = lfp_tfa_cfg.analyse_epochs{ep, 3};
-            epoch_reftend    = lfp_tfa_cfg.analyse_epochs{ep, 4}; 
+            epoch_reftstart  = lfp_decode_cfg.analyse_epochs{ep, 3};
+            epoch_reftend    = lfp_decode_cfg.analyse_epochs{ep, 4}; 
             
             condition_idx = zeros(1, length([condition_trials_idx{:}])); 
             
@@ -227,7 +229,7 @@ for i = 1:length(lfp_tfa_cfg.session_info)
         lfp_decode.raw_lfp.session(i).time{ep} = ...
             lfp_decode.raw_lfp.session(i).time{ep}(1:nsamples_rawlfp);
         lfp_decode.raw_lfp.session(i).epoch_name{ep} = ...
-            lfp_tfa_cfg.analyse_epochs{ep, 2};
+            lfp_decode_cfg.analyse_epochs{ep, 2};
     end
     
     for ep = 1:size(lfp_decode.lfp_tfs.session(i).trial, 1)
@@ -245,7 +247,7 @@ for i = 1:length(lfp_tfa_cfg.session_info)
         lfp_decode.lfp_tfs.session(i).time{ep} = ...
             lfp_decode.lfp_tfs.session(i).time{ep}(1:ntimebins_tfs);
         lfp_decode.lfp_tfs.session(i).epoch_name{ep} = ...
-            lfp_tfa_cfg.analyse_epochs{ep, 2};
+            lfp_decode_cfg.analyse_epochs{ep, 2};
     end
     
 end

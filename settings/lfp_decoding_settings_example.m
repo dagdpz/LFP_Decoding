@@ -573,3 +573,41 @@ end
 % Example:
 % lfp_decode_cfg.baseline_method = 'relchange';
 lfp_decode_cfg.baseline_method = 'zscore';
+
+%% Settings for defining trial start and end
+
+% Specify events which mark trial start and end
+lfp_decode_cfg.trialinfo = struct();
+
+% ID of the reference state which indicates start of a trial
+% Example:
+% lfp_tfa_cfg.trialinfo.start_state = lfp_tfa_states.FIX_ACQ; reference for 
+% trial start is the onset of fixation acquisition
+lfp_decode_cfg.trialinfo.start_state = lfp_tfa_states.FIX_ACQ;
+
+% offset to be considered from the onset of
+% trial start reference state for calculating the trial start time
+% i.e., trial start time = onset of trial start state + start offset
+% Example:
+% 1. lfp_tfa_cfg.trialinfo.ref_tstart = -0.5;
+% trial start time = onset time of lfp_tfa_cfg.trialinfo.start_state - 0.5;
+% 1. lfp_tfa_cfg.trialinfo.ref_tstart = 0.5;
+% trial start time = onset time of lfp_tfa_cfg.trialinfo.start_state + 0.5;
+lfp_decode_cfg.trialinfo.ref_tstart = -0;
+
+% ID of the reference state which indicates start of a trial
+% Example:
+% lfp_tfa_cfg.trialinfo.end_state = lfp_tfa_states.TAR_HOL; reference for 
+% trial start is the onset of target hold
+lfp_decode_cfg.trialinfo.end_state = lfp_tfa_states.SUCCESS;
+
+% offset to be considered from the onset of
+% trial end reference state for calculating the trial end time
+% i.e., trial end time = onset of trial end state + end offset
+% Example:
+% 1. lfp_tfa_cfg.trialinfo.ref_tend = 0.5;
+% trial start time = onset time of lfp_tfa_cfg.trialinfo.end_state + 0.5;
+% 1. lfp_tfa_cfg.trialinfo.ref_tend = -0.5;
+% trial start time = onset time of lfp_tfa_cfg.trialinfo.end_state - 0.5;
+lfp_decode_cfg.trialinfo.ref_tend = 0;
+

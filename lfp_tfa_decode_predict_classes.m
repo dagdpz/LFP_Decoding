@@ -25,9 +25,11 @@ function lfp_decode_accuracy = lfp_tfa_decode_predict_classes( lfp_decode, lfp_d
 %       fields containing train and test accuracy (session-wise and average
 %       across sessions)
 %
-%   Required: lfp_tfa_decode_get_class_condition, cvpartition (Statistics
-%   and Machine Learning Toolbox), svmtrain and svmpredict (LIBSVM toolbox
-%   v3.24), lfp_tfa_decode_plot_accuracy
+%   Required: lfp_tfa_decode_get_class_condition,
+%   lfp_tfa_decode_resample_timefreqbins, lfp_tfa_decode_resample_timebins,
+%   lfp_tfa_decode_normalize_data, cvpartition (Statistics and Machine
+%   Learning Toolbox), svmtrain and svmpredict (LIBSVM toolbox v3.24),
+%   lfp_tfa_decode_plot_accuracy 
  
 close all;
 

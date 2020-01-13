@@ -1,6 +1,23 @@
 function [ resampled_lfp, timebins ] = lfp_tfa_decode_resample_timebins( raw_lfp, orig_timepoints, nsamples_timebin )
-%UNTITLED Summary of this function goes here
-%   Detailed explanation goes here
+%lfp_tfa_decode_resample_timebins - function to time bin the raw LFP
+%   Each time bin contains the average raw LFP of all timepoints within
+%   that bin for each site. Each bin is assigned a timestamp equal to the timestamp of
+%   middle timepoint of that bin
+%
+% USAGE:
+%   [ resampled_lfp, timebins ] = lfp_tfa_decode_resample_timebins(
+%   raw_lfp, orig_timepoints, nsamples_timebin ) 
+%
+% INPUTS: 
+%   raw_lfp             - raw LFP data (nsites x ntimepoints)
+%   orig_timepoints     - timestamps of raw LFP data (1 x ntimepoints)
+%   nsamples_timebin    - number of raw LFP samples to be included in a
+%   time bin
+% OUTPUTS:
+%   resampled_lfp       - Resampled LFP data (nsites x nbins),
+%   ntimebins = round(numel(orig_timepoints) / nsamples_timebin)
+%   timebins            - Timestamps of the raw LFP bins (1 x nbins)
+%
 
 % find number of bins possible
 nbins = floor(length(orig_timepoints) / nsamples_timebin);

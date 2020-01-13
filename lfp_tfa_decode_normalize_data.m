@@ -1,6 +1,25 @@
 function [ train_data_norm, test_data_norm ] = lfp_tfa_decode_normalize_data( train_data, test_data, normalization )
-%UNTITLED14 Summary of this function goes here
+%lfp_tfa_decode_normalize_data Normalize the train and test data using a
+%normalization factor obtained using only the train data. 
 %   Detailed explanation goes here
+%
+% USAGE:
+%   [ train_data_norm, test_data_norm ] = lfp_tfa_decode_normalize_data(...
+%   train_data, test_data, normalization )
+%
+% INOUTS: 
+%   train_data      - unnormalized train data (ntrainsamples x nfeatures)
+%   test_data       - unnormalized train data (ntestsamples x nfeatures)
+%   normalization   - type of normalization to be applied. Can be 'minmax
+%   or 'zscore' 
+%       'minmax'    - normalized = (unnormalized - train_min) / (trian_max
+%       - train_min). i.e., each feature in train data gets normalized
+%       between 0 and 1
+%       'zscore'    - normalized = (unnormalized - train_mean) /
+%       (trian_std)
+% OUTPUTS:
+%   train_data_norm - normalized train data (ntrainsamples x nfeatures)
+%   test_data_norm  - normalized train data (ntestsamples x nfeatures)
 
 switch(normalization)
     case 'minmax'

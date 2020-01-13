@@ -1,8 +1,9 @@
 function lfp_decode_cfg = lfp_tfa_decode_define_settings(settings_filepath)
-%lfp_tfa_define_settings - Function to define LFP time frequency analysis settings 
+%lfp_tfa_decode_define_settings - Function to read settings for LFP
+%decoding
 %
 % USAGE:
-%	lfp_tfa_cfg = lfp_tfa_define_settings(settings_filepath)
+%	lfp_decode_cfg = lfp_tfa_decode_define_settings(settings_filepath)
 %
 % INPUTS:
 %       settings_filepath         - absolute path to the matlab script file
@@ -10,13 +11,12 @@ function lfp_decode_cfg = lfp_tfa_decode_define_settings(settings_filepath)
 %       settings/lfp_tfa_settings_example
 %
 % OUTPUTS:
-%		lfp_tfa_cfg               - structure containing all settings
+%		lfp_decode_cfg            - structure containing all settings
 %
 % REQUIRES:	lfp_tfa_read_info_file, lfp_tfa_compare_conditions,
 %
 %
-% See also settings/lfp_tfa_settings_example, lfp_tfa_read_info_file, 
-% lfp_tfa_compare_conditions, lfp_tfa_mainscript
+% See also settings/lfp_decode_settings_example, lfp_decode_main
 %
 % Author(s):	S.Nair, DAG, DPZ
 % URL:		http://www.dpz.eu/dag
