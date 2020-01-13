@@ -448,7 +448,7 @@ end
 % (DPSS), also known as the Slepian sequence
 lfp_decode_cfg.tfr.taper           = [];
 if strcmp(lfp_decode_cfg.tfr.method, 'mtmconvol')
-    lfp_decode_cfg.tfr.width       = 'hanning'; 
+    lfp_decode_cfg.tfr.taper       = 'hanning'; 
 end
 
 % the width of frequency smoothing in Hz (fw)
@@ -472,7 +472,7 @@ end
 % window length decreases with frequency
 lfp_decode_cfg.tfr.t_ftimwin       = [];
 if strcmp(lfp_decode_cfg.tfr.method, 'mtmconvol')
-    lfp_decode_cfg.tfr.tapsmofrq  = 5./cfg.foi; % 5 cycles per window. 
+    lfp_decode_cfg.tfr.t_ftimwin  = 5./cfg.foi; % 5 cycles per window. 
 end
 
 %% Settings for detection of noisy trials
