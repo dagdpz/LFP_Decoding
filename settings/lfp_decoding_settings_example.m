@@ -245,7 +245,7 @@ lfp_decode_cfg.decode.n_cvfolds = 10;
 % type of window to be considered for decoding
 % this can be either 'moving' or 'growing'
 % 'moving' - a sliding window with n_tbins_wnd will be considered. The
-% window will slide by one timebin
+% window will slide by one timebin (default)
 % 'growing' - all the previous and current timebin will be considered for
 % decoding
 lfp_decode_cfg.decode.window_type = 'moving';

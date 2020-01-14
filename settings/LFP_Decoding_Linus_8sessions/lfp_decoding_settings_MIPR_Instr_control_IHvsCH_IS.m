@@ -241,6 +241,14 @@ end
 % from all the classes being decoded. 
 lfp_decode_cfg.decode.n_cvfolds = 10;
 
+% type of window to be considered for decoding
+% this can be either 'moving' or 'growing'
+% 'moving' - a sliding window with n_tbins_wnd will be considered. The
+% window will slide by one timebin
+% 'growing' - all the previous and current timebin will be considered for
+% decoding
+lfp_decode_cfg.decode.window_type = 'moving';
+
 % number of timebins to be considered in the moving (sliding) window. Each
 % trail will be divided into moving windows of specified length (in time
 % bins) and each window forms a sample. 
@@ -248,18 +256,15 @@ lfp_decode_cfg.decode.n_tbins_wnd = 5;
 
 %% Setting for analysis and averaging
 
-% what kind of analyses should be done on LFP
+% what kind of analyses should be used for LFP decoding
 % should be a cell array of strings which indicate which kind of analyses
-% should be performed on LFP
-% Currently supported analyses are 'tfs', 'evoked', 'pow', and 'sync'
-%       'tfs'       - LFP time frequency spectrogram average for given conditions and time windows
-%       'evoked'    - LFP evoked response average for given conditions and time windows
-%       'pow'       - LFP power spectrum average for given conditions and epochs
-%       'sync'      - LFP-LFP phase synchronization measure for given conditions and
-%                   time windows
-%       'sync'      - LFP-LFP phase synchronization spectrum for given 
-%                   conditions and epochs
-lfp_decode_cfg.analyses = {'evoked', 'tfs'}; %
+% should be used for LFP decoding
+% Currently supported analyses are 'lfp_tfs', 'raw_lfp'
+%       'lfp_tfs'       - LFP time frequency spectrogram average for given
+%       conditions and time windows are used for decoding
+%       'raw_lfp'       - Raw LFP for given conditions and time windows are
+%       used for decoding 
+lfp_decode_cfg.analyses = {'lfp_tfs'};
 
 % reference hemisphere for hand-space labelling
 % can be 'R' (for right hemisphere) or 'L' (for left hemisphere)

@@ -34,7 +34,10 @@ function lfp_decode_accuracy = lfp_tfa_decode_predict_classes( lfp_decode, lfp_d
 close all;
 
 n_cvfolds = lfp_decode_cfg.decode.n_cvfolds;
-wnd_type = lfp_decode_cfg.decode.window_type;
+wnd_type = 'moving';
+if isfield(lfp_decode_cfg.decode, 'window_type')
+    wnd_type = lfp_decode_cfg.decode.window_type;
+end
 n_tbins_wnd = lfp_decode_cfg.decode.n_tbins_wnd;
 
 results_folder = fullfile(lfp_decode_cfg.root_results_fldr, 'LFP Decoding');
