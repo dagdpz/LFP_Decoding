@@ -7,7 +7,7 @@
 clc; clear; 
 
 % folder containing settings file 
-cfg_folderpath = 'C:\Users\snair\Documents\GitHub\LFP_timefrequency_analysis\settings\LFP_Decoding_Linus_8sessions';
+cfg_folderpath = 'C:\Users\snair\Documents\GitHub\LFP_decoding\LFP_Decoding\settings\LFP_Decoding_Linus_8sessions';
 % files containing settings for LFP analysis
 settings_filenames = '*.m';
 
