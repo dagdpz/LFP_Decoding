@@ -1,4 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Script for LFP time frequency analysis
 % Runs functions for reading LFP data, rejection of noise trials
 % and condition specific analysis using TFR, evoked, spectra, sync
@@ -7,7 +7,7 @@
 clc; clear; 
 
 % folder containing settings file 
-cfg_folderpath = 'C:\Users\snair\Documents\GitHub\LFP_decoding\LFP_Decoding\settings\LFP_Decoding_Linus_8sessions';
+cfg_folderpath = 'C:\Users\MYoung\Documents\GitHub\LFP_Decoding\settings\LFP_decoding_dPul_LIP';
 % files containing settings for LFP analysis
 settings_filenames = '*.m';
 
@@ -42,7 +42,7 @@ for f = 1:length(settings_files)
 
     % Decode LFP
     fprintf('Decoding LFP ...\n');
-    lfp_decode_accuracy = lfp_tfa_decode_predict_classes( lfp_decode, lfp_decode_cfg, lfp_decode_cfg.analyses);
+    lfp_decode_accuracy = lfp_tfa_decode_predict_classes(lfp_decode, lfp_decode_cfg, lfp_decode_cfg.analyses);
     fprintf('done.\n');
 end
 

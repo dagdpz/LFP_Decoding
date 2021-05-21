@@ -1,4 +1,4 @@
-function lfp_decode_accuracy = lfp_tfa_decode_predict_classes( lfp_decode, lfp_decode_cfg, analyses)
+function lfp_decode_accuracy = lfp_tfa_decode_predict_classes_NEW( lfp_decode, lfp_decode_cfg, analyses)
 %lfp_tfa_decode_predict_classes - function to decode session-wise LFP data
 %   lfp_decode = lfp_tfa_decode_predict_classes( lfp_decode, lfp_tfa_cfg, analyses)
 %   INPUTS: 
@@ -30,8 +30,6 @@ function lfp_decode_accuracy = lfp_tfa_decode_predict_classes( lfp_decode, lfp_d
 %   lfp_tfa_decode_normalize_data, cvpartition (Statistics and Machine
 %   Learning Toolbox), svmtrain and svmpredict (LIBSVM toolbox v3.24),
 %   lfp_tfa_decode_plot_accuracy 
-
-% NOTE---for Bacchus, use plot_accuracy_main with session_mean_info as 2nd input and for Linus, use plot_accuracy_ms
  
 close all;
 
@@ -61,7 +59,8 @@ for a = 1:length(analyses)
     nepochs = size(lfp_data.session(1).trial, 1);
     for ep = 1:nepochs
         lfp_decode_accuracy(a).sessions_avg.train_accuracy{ep} = [];
-        lfp_decode_accuracy(a).sessions_avg.test_accuracy{ep} = [];
+        lfp_decode_accuracy(a).sessions_avg.cont_test_accuracy{ep} = [];
+        lfp_decode_accuracy(a).sessions_avg.inact_test_accuracy{ep} = [];
     end
     % session-wise decoding
     for i = 1:length(lfp_data.session)
@@ -93,7 +92,9 @@ for a = 1:length(analyses)
         % initialize structs to store session-wise decoding accuracies        
         lfp_decode_accuracy(a).session(i).train_accuracy = cell(nsites, ...
             size(lfp_data.session(i).trial, 1));
-        lfp_decode_accuracy(a).session(i).test_accuracy = cell(nsites, ...
+        lfp_decode_accuracy(a).session(i).cont_test_accuracy = cell(nsites, ...
+            size(lfp_data.session(i).trial, 1));
+        lfp_decode_accuracy(a).session(i).inact_test_accuracy = cell(nsites, ...
             size(lfp_data.session(i).trial, 1));
         lfp_decode_accuracy(a).session(i).timebins = cell(1, size(...
             lfp_data.session(i).trial, 1));
@@ -203,7 +204,7 @@ for a = 1:length(analyses)
                 end
 
                 bin_train_accuracy = nan(length(trial_timebins), n_cvfolds);
-                bin_test_accuracy = nan(length(trial_timebins), n_cvfolds);
+                bin_test_accuracy = nan(length(trial_timebins), n_cvfolds, 2);
 
                 % loop through each time bin
                 % get the valid timebins based on moving window
@@ -242,15 +243,23 @@ for a = 1:length(analyses)
 
                     for c = 1:n_cvfolds
                         fprintf('CV fold: %g\n', c);
-                        cv = cvpartition(classes_trials_label,'HoldOut',0.5);
+                        
+                        inact_data = all_trials_concat(classes_trials_label==3 | classes_trials_label==4,:);
+                        inact_labels = classes_trials_label(classes_trials_label==3 | classes_trials_label==4);
+                        inact_labels(inact_labels==3) = ones(1,length(inact_labels(inact_labels==3)));
+                        inact_labels(inact_labels==4) = 2*ones(1,length(inact_labels(inact_labels==4)));
+                        inact_labels = inact_labels';
+                        cont_data = all_trials_concat(classes_trials_label==1 | classes_trials_label==2,:);
+                        cont_labels = classes_trials_label(classes_trials_label==1 | classes_trials_label==2);
+                        cv = cvpartition(cont_labels,'HoldOut',0.5);
                         idx = cv.test;
-                        test_idx = idx;
-                        train_idx = ~idx;
+                        cont_test_idx = idx;
+                        cont_train_idx = ~idx;
 
-                        train_data = all_trials_concat(train_idx, :);
-                        train_labels = classes_trials_label(train_idx)';
-                        test_data = all_trials_concat(test_idx, :);
-                        test_labels = classes_trials_label(test_idx)';
+                        cont_train_data = cont_data(cont_train_idx, :);
+                        cont_train_labels = cont_labels(cont_train_idx)';
+                        cont_test_data = cont_data(cont_test_idx, :);
+                        cont_test_labels = cont_labels(cont_test_idx)';
 
                         % normalization to [0, 1] using train data only
 %                         train_min = min(train_data);
@@ -261,9 +270,11 @@ for a = 1:length(analyses)
 %                         test_data_norm = (test_data - ...
 %                             repmat(train_min, size(test_data, 1), 1)) ./ ...
 %                             repmat(train_max - train_min, size(test_data, 1), 1);
-                        [train_data_norm, test_data_norm] = ...
-                            lfp_tfa_decode_normalize_data(train_data, test_data, 'minmax');
-
+                        [cont_train_data_norm, cont_test_data_norm] = ...
+                            lfp_tfa_decode_normalize_data(cont_train_data, cont_test_data, 'minmax');
+                        
+                        [~, inact_data_norm] = ...
+                            lfp_tfa_decode_normalize_data(cont_train_data, inact_data, 'minmax');
 
                         % using fitcsvm and predict from MATLAB Statistics
                         % and Machine Learning toolbox 
@@ -279,23 +290,28 @@ for a = 1:length(analyses)
         %                 bin_test_accuracy(b, c) = accuracy;
 
                         % using svmtrain and svmpredict from libsvm library
-                        SVMModel = svmtrain(train_labels, train_data_norm,'-s 0 -t 0');
+                        SVMModel = svmtrain(cont_train_labels, cont_train_data_norm,'-s 0 -t 0');
 
-                        [~,accuracy,~] = svmpredict(train_labels, train_data_norm, SVMModel);
-                        bin_train_accuracy(b, c) = accuracy(1)/100;            
+                        [~,accuracy,~] = svmpredict(cont_train_labels, cont_train_data_norm, SVMModel);
+                        bin_train_accuracy(b, c, 1) = accuracy(1)/100;            
 
-                        [~,accuracy,~] = svmpredict(test_labels, test_data_norm, SVMModel);
-                        bin_test_accuracy(b, c) = accuracy(1)/100;
-
+                        [~,accuracy,~] = svmpredict(cont_test_labels, cont_test_data_norm, SVMModel);
+                        bin_test_accuracy(b, c, 1) = accuracy(1)/100;
+                        
+                        [~,accuracy, ~] = svmpredict(inact_labels, inact_data_norm, SVMModel);
+                        bin_test_accuracy(b, c, 2) = accuracy(1)/100;
+                        
                     end
 
                     fprintf('Mean train score concat: %g\n', nanmean(bin_train_accuracy(b,:)));
-                    fprintf('Mean test score concat: %g\n', nanmean(bin_test_accuracy(b,:)));
+                    fprintf('Mean control test score concat: %g\n', nanmean(bin_test_accuracy(b,:,1)));
+                    fprintf('Mean inactivation test score concat: %g\n', nanmean(bin_test_accuracy(b,:,2)));
 
                 end
 
                 lfp_decode_accuracy(a).session(i).train_accuracy{s, ep} = bin_train_accuracy;
-                lfp_decode_accuracy(a).session(i).test_accuracy{s, ep} = bin_test_accuracy;
+                lfp_decode_accuracy(a).session(i).cont_test_accuracy{s, ep} = bin_test_accuracy(:,:,1);
+                lfp_decode_accuracy(a).session(i).inact_test_accuracy{s, ep} = bin_test_accuracy(:,:,2);
                 lfp_decode_accuracy(a).session(i).timebins{ep} = trial_timebins;
                 if s == nsites
                     try lfp_decode_accuracy(a).sessions_avg.train_accuracy{ep} = cat(2, ...
@@ -303,14 +319,21 @@ for a = 1:length(analyses)
                     catch e
                         lfp_decode_accuracy(a).sessions_avg.train_accuracy{ep} = cat(2, ...
                         lfp_decode_accuracy(a).sessions_avg.train_accuracy{ep}, ...
-                        nanmean(bin_train_accuracy(1:size(lfp_decode_accuracy(a).sessions_avg.train_accuracy{ep},1))', 2));
+                        nanmean(bin_train_accuracy(1:size(lfp_decode_accuracy(a).sessions_avg.train_accuracy{ep}),:,1),2));
                     end
-                    try lfp_decode_accuracy(a).sessions_avg.test_accuracy{ep} = cat(2, ...
-                        lfp_decode_accuracy(a).sessions_avg.test_accuracy{ep}, nanmean(bin_test_accuracy, 2));
+                    try lfp_decode_accuracy(a).sessions_avg.cont_test_accuracy{ep} = cat(2, ...
+                        lfp_decode_accuracy(a).sessions_avg.cont_test_accuracy{ep}, nanmean(bin_test_accuracy(:,:,1), 2));
                     catch e
-                        lfp_decode_accuracy(a).sessions_avg.test_accuracy{ep} = cat(2, ...
-                        lfp_decode_accuracy(a).sessions_avg.test_accuracy{ep}, ...
-                        nanmean(bin_test_accuracy(1:size(lfp_decode_accuracy(a).sessions_avg.test_accuracy{ep},1))', 2));
+                        lfp_decode_accuracy(a).sessions_avg.cont_test_accuracy{ep} = cat(2, ...
+                        lfp_decode_accuracy(a).sessions_avg.cont_test_accuracy{ep}, ...
+                        nanmean(bin_test_accuracy(1:size(lfp_decode_accuracy(a).sessions_avg.cont_test_accuracy{ep}),:,1), 2));
+                    end
+                    try lfp_decode_accuracy(a).sessions_avg.inact_test_accuracy{ep} = cat(2, ...
+                        lfp_decode_accuracy(a).sessions_avg.inact_test_accuracy{ep}, nanmean(bin_test_accuracy(:,:,2), 2));
+                    catch e
+                        lfp_decode_accuracy(a).sessions_avg.inact_test_accuracy{ep} = cat(2, ...
+                        lfp_decode_accuracy(a).sessions_avg.inact_test_accuracy{ep}, ...
+                        nanmean(bin_test_accuracy(1:size(lfp_decode_accuracy(a).sessions_avg.inact_test_accuracy{ep}),:,2), 2));
                     end
                     if i == 1
                         lfp_decode_accuracy(a).sessions_avg.timebins{ep} = trial_timebins;
@@ -323,23 +346,34 @@ for a = 1:length(analyses)
         end
         
         % plot session-wise accuracy
-        figtitle = sprintf('Session %g - %s vs. %s with Target %s (ntrain = %g, nfold = %g)', i, ...
+        cont_figtitle = sprintf('Session %g - CONTROL - %s vs. %s with Target %s (ntrain = %g, nfold = %g)', i, ...
             lfp_decode_cfg.decode.classes(1).label, ...
             lfp_decode_cfg.decode.classes(2).label, ...
             lfp_decode_cfg.decode.classes(1).target, ...
-            length(train_labels), n_cvfolds);
-        session_mean_info = lfp_tfa_decode_plot_accuracy_subplots(lfp_decode_accuracy(a).session(i), figtitle, results_folder);
+            length(cont_train_labels), n_cvfolds);
+        inact_figtitle = sprintf('Session %g - INACT - %s vs. %s with Target %s (ntrain = %g, nfold = %g)', i, ...
+            lfp_decode_cfg.decode.classes(1).label, ...
+            lfp_decode_cfg.decode.classes(2).label, ...
+            lfp_decode_cfg.decode.classes(1).target, ...
+            length(inact_labels), n_cvfolds);
+        lfp_tfa_decode_plot_accuracy_NEW(lfp_decode_accuracy(a).session(i), 'control', cont_figtitle, results_folder);
+        lfp_tfa_decode_plot_accuracy_NEW(lfp_decode_accuracy(a).session(i), 'inactivation', inact_figtitle, results_folder);
 
     end
     
     % plot average across sessions
     nsessions = size(lfp_decode_accuracy.sessions_avg.train_accuracy{1}, 2);
     %originally lfp_data not lfp_decode_accuracy
-    figtitle = sprintf('%s vs. %s (nsessions = %g)', ...
+    cont_figtitle = sprintf('CONTROL - %s vs. %s (nsessions = %g)', ...
         lfp_decode_cfg.decode.classes(1).label, ...
         lfp_decode_cfg.decode.classes(2).label, ...
         nsessions);
-    lfp_tfa_decode_plot_accuracy_ms(lfp_decode_accuracy(a).sessions_avg, figtitle, results_folder);
+    inact_figtitle = sprintf('INACTIVATION - %s vs. %s (nsessions = %g)', ...
+        lfp_decode_cfg.decode.classes(1).label, ...
+        lfp_decode_cfg.decode.classes(2).label, ...
+        nsessions);
+    lfp_tfa_decode_plot_accuracy_NEW(lfp_decode_accuracy(a).sessions_avg, 'control', cont_figtitle, results_folder);
+    lfp_tfa_decode_plot_accuracy_NEW(lfp_decode_accuracy(a).sessions_avg, 'inactivation', inact_figtitle, results_folder);
 
     
     % save back to main struct
