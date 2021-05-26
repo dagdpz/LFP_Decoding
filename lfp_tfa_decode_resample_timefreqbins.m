@@ -1,5 +1,5 @@
 function [ timefreqbinned_tfs, bin_timestamps, bin_freq ] = ...
-    lfp_tfa_decode_resample_timefreqbins( lfp_tfs, orig_timepoints, orig_freqpoints, nsamples_timebin, nsamples_freqbin)
+    lfp_tfa_decode_resample_timefreqbins(lfp_tfs, orig_timepoints, orig_freqpoints, nsamples_timebin, nsamples_freqbin, subsample, subsamplerange)
 %lfp_tfa_decode_resample_timebins - function to time bin the raw LFP
 %   Each time bin contains the average raw LFP of all timepoints within
 %   that bin for each site. Each bin is assigned a timestamp equal to the timestamp of
@@ -53,3 +53,10 @@ for f = 1:nfreqbins
     timefreqbinned_tfs(:,f,:) = nanmean(timebinned_tfs(:, bin_samples_idx, :), 2);
 end
 
+if subsample
+    idx_start = find(subsamplerange(1)<orig_freqpoints);
+    idx_start = idx_start(1);
+    idx_end = find(orig_freqpoints>subsamplerange(2));
+    idx_end = idx_end(1);
+    timefreqbinned_tfs = timefreqbinned_tfs(:,idx_start:1:idx_end,:);
+end
