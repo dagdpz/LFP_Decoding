@@ -59,8 +59,8 @@ function lfp_tfa_decode_plot_accuracy_ms( lfp_decode_accuracy, figtitle, results
     % save figure
     results_file = fullfile(results_folder, figtitle);
     try
-        export_fig(h, results_file, '-svg');
-        %export_fig(h, results_file, '-pdf');
+%         export_fig(h, results_file, '-svg');
+        export_fig(h, results_file, '-pdf');
     catch e
         warning('Cannot save figures. Reason: %s\n\n', e.message());
     end
