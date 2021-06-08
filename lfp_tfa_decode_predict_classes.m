@@ -62,6 +62,7 @@ for a = 1:length(analyses)
     for ep = 1:nepochs
         lfp_decode_accuracy(a).sessions_avg.train_accuracy{ep} = [];
         lfp_decode_accuracy(a).sessions_avg.test_accuracy{ep} = [];
+        lfp_decode_accuracy(a).sessions_avg.test_accuracy_std{ep} = [];
     end
     % session-wise decoding
     for i = 1:length(lfp_data.session)
@@ -312,6 +313,15 @@ for a = 1:length(analyses)
                         lfp_decode_accuracy(a).sessions_avg.test_accuracy{ep}, ...
                         nanmean(bin_test_accuracy(1:size(lfp_decode_accuracy(a).sessions_avg.test_accuracy{ep},1))', 2));
                     end
+                    try lfp_decode_accuracy(a).sessions_avg.test_accuracy_std{ep} = cat(2, ...
+                        lfp_decode_accuracy(a).sessions_avg.test_accuracy_std{ep}, nanstd(bin_test_accuracy,0, 2));
+                    catch e
+                        lfp_decode_accuracy(a).sessions_avg.test_accuracy_std{ep} = cat(2, ...
+                        lfp_decode_accuracy(a).sessions_avg.test_accuracy_std{ep}, ...
+                        nanstd(bin_test_accuracy(1:size(lfp_decode_accuracy(a).sessions_avg.test_accuracy_std{ep},1))',0, 2));
+                    end
+                    
+                   
                     if i == 1
                         lfp_decode_accuracy(a).sessions_avg.timebins{ep} = trial_timebins;
                         lfp_decode_accuracy(a).sessions_avg.epoch_name{ep} = lfp_data.session(i).epoch_name{ep};
@@ -322,7 +332,7 @@ for a = 1:length(analyses)
             
         end
         
-        % plot session-wise accuracy       
+        % plot site-wise accuracy       
         figtitle = sprintf('%s - %s vs. %s %s (ntrain = %g, nfold = %g)',...
             lfp_decode_cfg.session_info(i).Date, ...
             lfp_decode_cfg.decode.classes(1).label, ...
@@ -330,6 +340,15 @@ for a = 1:length(analyses)
             lfp_decode_cfg.decode.classes(1).target, ...
             length(train_labels), n_cvfolds);
         session_mean_info = lfp_tfa_decode_plot_accuracy_subplots(lfp_decode_accuracy(a).session(i), figtitle, results_folder);
+        
+         % plot session-wise average      
+        figtitle = sprintf('%s - %s vs. %s %s (ntrain = %g, nfold = %g)',...
+            lfp_decode_cfg.session_info(i).Date, ...
+            lfp_decode_cfg.decode.classes(1).label, ...
+            lfp_decode_cfg.decode.classes(2).label, ...
+            lfp_decode_cfg.decode.classes(1).target, ...
+            length(train_labels), n_cvfolds);
+            lfp_tfa_decode_plot_accuracy_average(lfp_decode_accuracy(a).sessions_avg, figtitle, results_folder,i);
 
     end
     

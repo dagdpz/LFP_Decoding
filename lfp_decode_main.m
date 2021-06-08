@@ -7,7 +7,7 @@
 clc; clear; 
 
 % folder containing settings file 
-cfg_folderpath = 'C:\Users\mpachoud\Documents\GitHub\LFP_Decoding\settings\LFP_decoding_dPul_LIP';
+cfg_folderpath = 'C:\Users\mpachoud\Documents\GitHub\LFP_Decoding\settings\LFP_decoding_dPul_inactivation_LIP_Bac';
 % files containing settings for LFP analysis
 settings_filenames = '*.m';
 
