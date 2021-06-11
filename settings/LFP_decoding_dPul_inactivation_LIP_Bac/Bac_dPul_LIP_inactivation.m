@@ -74,7 +74,7 @@ lfp_decode_cfg.use_datasets = [10];
 %       be combined)
 
 
-     lfp_decode_cfg.session_info(1) = ...
+     lfp_decode_cfg.session_info(1) = ... %only LIP_R
     struct('Monkey',        'Bac', ...
            'Date',          '20201112', ...
            'Input',         'Y:\Projects\Simultaneous_dPul_PPC_recordings\ephys\dPul_inj_LIP_Bac_20201112\sites_Bacchus_20201112.mat', ...
@@ -169,19 +169,19 @@ cl = 0;
 
 cl = cl + 1;
 lfp_decode_cfg.decode.classes(cl).target = 'LIP_R';
-lfp_decode_cfg.decode.classes(cl).perturbation = 0;
+lfp_decode_cfg.decode.classes(cl).perturbation = 1;
 lfp_decode_cfg.decode.classes(cl).choice_trial = 0;
 lfp_decode_cfg.decode.classes(cl).reach_hand = 'any';
 lfp_decode_cfg.decode.classes(cl).reach_space = 'R';
-lfp_decode_cfg.decode.classes(cl).label = 'Instr control IS';
+lfp_decode_cfg.decode.classes(cl).label = 'Instr inact IS';
 
 cl = cl + 1;
 lfp_decode_cfg.decode.classes(cl).target = 'LIP_R';
-lfp_decode_cfg.decode.classes(cl).perturbation = 0;
+lfp_decode_cfg.decode.classes(cl).perturbation = 1;
 lfp_decode_cfg.decode.classes(cl).choice_trial = 0;
 lfp_decode_cfg.decode.classes(cl).reach_hand = 'any';
 lfp_decode_cfg.decode.classes(cl).reach_space = 'L';
-lfp_decode_cfg.decode.classes(cl).label = 'Instr control CS';
+lfp_decode_cfg.decode.classes(cl).label = 'Instr inact CS';
 
 % To add more classes to decode, increment cl by 1, and add a new element
 % into the struct array with the required fields. 
@@ -386,7 +386,7 @@ lfp_decode_cfg.compare.exclude_handspace = {};
 % lfp_decode_cfg.compare.perturbation_groups(1) separately
 % lfp_decode_cfg.compare.perturbations = nan; combine the trials with
 % any perturbation value 
-lfp_decode_cfg.compare.perturbations = 0; 
+lfp_decode_cfg.compare.perturbations = [0,1]; 
 
 % minimum number of trials per condition to be satisfied to consider a site
 % for averaging, if for a site, for any condition, the  number of valid 
@@ -397,7 +397,7 @@ lfp_decode_cfg.compare.perturbations = 0;
 % consider those sites with atleast 5 trials for each condition
 % lfp_decode_cfg.mintrials_percondition = 5; 
 % By condition, we mean a combination of choice/instr, pre/post-injection, type and effector, hand-space
- lfp_decode_cfg.mintrials_percondition = 0;
+ lfp_decode_cfg.mintrials_percondition = 5;
 
 %% Settings for power spectrogram calculations
 % Configuration for calculating LFP time frequency spectrogram using
