@@ -40,7 +40,7 @@ end
 % lfp_decode_cfg.decode_lfp_file (see next setting variable)
 lfp_decode_cfg.read_decode_LFP = true;
 
-lfp_decode_cfg.plot_per_site = false;
+lfp_decode_cfg.plot_per_site = true;
 
 
 % folder where the results of analysed LFP site averages are stored
@@ -281,7 +281,7 @@ lfp_decode_cfg.decode.n_tbins_wnd = 5;
 %       conditions and time windows are used for decoding
 %       'raw_lfp'       - Raw LFP for given conditions and time windows are
 %       used for decoding 
-lfp_decode_cfg.analyses = {'lfp_tfs'};
+lfp_decode_cfg.analyses = {'raw_lfp'};
 
 % reference hemisphere for hand-space labelling
 % can be 'R' (for right hemisphere) or 'L' (for left hemisphere)
